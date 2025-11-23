@@ -1,9 +1,10 @@
+
 const generateFakeToken = () => {
     // String mockada que simula um JWT
     return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjMiLCJ1c2VybmFtZSI6InVzdWFyaW8tdGVzdGUifQ.S0meRAnd0mT0KenFals3T0k3nF0rReact";
 };
 
-// Dados de teste (deve ser o único email/senha válido)
+// Dados de teste (deve ser o único email/senha válido para LOGIN)
 export const usuario_teste = {
     email: "victorfodao667@gmoil.key",
     senha: "vitor3570",
@@ -27,6 +28,22 @@ export const login = (dados) => {
                     token: null,
                 });
             }
-        }, 1000); 
+        }, 1000);
+    });
+};
+
+export const cadastro = (dados) => {
+    return new Promise((resolve) => {
+        // Simula o tempo de resposta da API (1 segundo de delay)
+        setTimeout(() => {
+            // Em um cenário real, fariamos validações aqui. 
+            // Para simulação, consideramos o cadastro sempre bem-sucedido.
+            const token = generateFakeToken();
+            resolve({
+                sucesso: true,
+                mensagem: `Usuário ${dados.email} cadastrado com sucesso!`,
+                token: token,
+            });
+        }, 1000);
     });
 };

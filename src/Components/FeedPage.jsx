@@ -1,0 +1,1 @@
+export const FeedPage = () => <h1>Bem-vindo à Página de Feed!</h1>;

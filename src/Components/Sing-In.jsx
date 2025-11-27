@@ -1,5 +1,5 @@
 import { useForm } from "../Hooks/useForm"
-import { cadastro } from "../Utils/usuario" 
+import { cadastro } from "../Mocks/APIMockada" 
 import { useNavigate } from "react-router-dom"
 import React, { useState } from 'react';
 

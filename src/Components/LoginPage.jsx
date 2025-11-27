@@ -1,11 +1,11 @@
 import { useForm } from "../Hooks/useForm"
-import { login } from "../Utils/usuario" 
+import { login } from "../Mocks/APIMockada" 
 import { useNavigate } from "react-router-dom"
 import React, { useState } from 'react';
 
 export const LoginPage = () => {
     const navigate = useNavigate();
-    const [form, onChange] = useForm({ email: "", senha: "" })
+    const [form, onChange] = useForm({nome: "", email: "", senha: "" })
     const [erro, setErro] = useState(null); 
     const [loading, setLoading] = useState(false);
 
@@ -14,7 +14,7 @@ export const LoginPage = () => {
     }
 
     const goToRegisterPage = () => {
-        navigate("singin")
+        navigate("/singin")
     }
 
     const handleSubmit = async (event) => {

@@ -21,15 +21,11 @@ export const LoginPage = () => {
         event.preventDefault()
         setErro(null); 
         setLoading(true);
-
         console.log("BODY de Login:", form)
-
-        // 1. Simula a chamada de API e aguarda o resultado
         const resultado = await login(form);
 
         if (resultado.sucesso) {
-            // 2. ARMAZENAMENTO DO TOKEN
-            localStorage.setItem("token", resultado.token); // Salva o token
+            localStorage.setItem("token", resultado.token);
             console.log("Login OK! Token salvo. Redirecionando...");
             
             goToFeedPage();

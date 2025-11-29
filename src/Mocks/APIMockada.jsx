@@ -1,4 +1,3 @@
-
 const generateFakeToken = () => {
     return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjMiLCJ1c2VybmFtZSI6InVzdWFyaW8tdGVzdGUifQ.S0meRAnd0mT0KenFals3T0k3nF0rReact";
 };
@@ -42,10 +41,10 @@ const Posts = [
 ];
 
 const Comments = [
-    { id: 10, postId: 100, autor: "Filipe Dantas", conteudo: "Ótima explicação sobre Hooks! Salvou meu projeto.", likes: 5, deslikes: 0 },
-    { id: 11, postId: 100, autor: "Ana Clara", conteudo: "Sempre tive dúvidas sobre useMemo, valeu!", likes: 12, deslikes: 1 },
-    { id: 20, postId: 200, autor: "Ricardo Mendes", conteudo: "Uso de useCallback é crucial para performance em listas grandes.", likes: 20, deslikes: 0 },
-    { id: 30, postId: 300, autor: "Lucas Ferreira", conteudo: "Gostei do guia, mas faltou um exemplo de ThemeProvider.", likes: 2, deslikes: 3 },
+    { id: 10, postId: 100, autor: "Filipe Dantas", conteudo: "Ótima explicação sobre Hooks! Salvou meu projeto.", likes: 5, deslikes: 0 },
+    { id: 11, postId: 100, autor: "Ana Clara", conteudo: "Sempre tive dúvidas sobre useMemo, valeu!", likes: 12, deslikes: 1 },
+    { id: 20, postId: 200, autor: "Ricardo Mendes", conteudo: "Uso de useCallback é crucial para performance em listas grandes.", likes: 20, deslikes: 0 },
+    { id: 30, postId: 300, autor: "Lucas Ferreira", conteudo: "Gostei do guia, mas faltou um exemplo de ThemeProvider.", likes: 2, deslikes: 3 },
 ];
 
 export const login = (dados) => {
@@ -91,34 +90,70 @@ export const getPosts = () =>{
 };
 
 export const createPost = (novoPost) => {
-    return new Promise(resolve => {
-        setTimeout(() => {
-            resolve({ 
-                sucesso: true, 
-                mensagem: `Post ${novoPost.titulo} criado com sucesso!`
-            });
-        }, 800); 
-    });
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve({ 
+                sucesso: true, 
+                mensagem: `Post ${novoPost.titulo} criado com sucesso!`
+            });
+        }, 800); 
+    });
 };
 
 export const getPostDetails = (postId) => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            const idNumerico = Number(postId);
-            const post = Posts.find(p => p.id === idNumerico);
-            if (post) {
-                const postComments = Comments.filter(c => c.postId === idNumerico);
-                resolve({ 
-                    sucesso: true, 
-                    post: post, 
-                    comments: postComments
-                });
-            } else {
-                reject({ 
-                    sucesso: false, 
-                    mensagem: "Post não encontrado." 
-                });
-            }
-        }, 700);
-    });
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const idNumerico = Number(postId);
+            const post = Posts.find(p => p.id === idNumerico);
+            if (post) {
+                const postComments = Comments.filter(c => c.postId === idNumerico);
+                resolve({ 
+                    sucesso: true, 
+                    post: post, 
+                    comments: postComments
+                });
+            } else {
+                reject({ 
+                    sucesso: false, 
+                    mensagem: "Post não encontrado." 
+                });
+            }
+        }, 700);
+    });
+};
+
+export const votePost = (postId, like) => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            const post = Posts.find(p => p.id === Number(postId));
+            if (post) {
+                if (like === 1) {
+                    post.likes += 1;
+                } else if (like === -1) {
+                    post.deslikes += 1;
+                }
+                resolve({ sucesso: true, mensagem: "Voto registrado!" });
+            } else {
+                resolve({ sucesso: false, mensagem: "Post não encontrado" });
+            }
+        }, 300);
+    });
+};
+
+export const voteComment = (commentId, like) => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            const comment = Comments.find(c => c.id === Number(commentId));
+            if (comment) {
+                if (like === 1) {
+                    comment.likes += 1;
+                } else if (like === -1) {
+                    comment.deslikes += 1;
+                }
+                resolve({ sucesso: true, mensagem: "Voto registrado!" });
+            } else {
+                resolve({ sucesso: false, mensagem: "Comentário não encontrado" });
+            }
+        }, 300);
+    });
 };

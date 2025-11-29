@@ -1,12 +1,16 @@
 import { useForm } from "../Hooks/useForm"
-import { cadastro } from "../Mocks/APIMockada" 
+import { cadastro } from "../Mocks/APIMockada"
 import { useNavigate } from "react-router-dom"
 import React, { useState } from 'react';
+import { 
+    Container, Card, Title, Form, Input, Button, 
+    ErrorMessage 
+} from '../Styles/StyledComponents';
 
 export const RegisterPage = () => {
     const navigate = useNavigate();
     const [form, onChange] = useForm({email: "", senha: "" })
-    const [erro, setErro] = useState(null); 
+    const [erro, setErro] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const goToFeedPage = () => {
@@ -15,68 +19,62 @@ export const RegisterPage = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault()
-        setErro(null); 
+        setErro(null);
         setLoading(true);
 
         console.log("BODY de Cadastro:", form)
 
-        // 1. Chama a função de cadastro em vez de login
         const resultado = await cadastro(form);
 
         if (resultado.sucesso) {
-            // 2. ARMAZENAMENTO DO TOKEN
-            localStorage.setItem("token", resultado.token); // Salva o token
+            localStorage.setItem("token", resultado.token);
             console.log("Cadastro OK! Token salvo. Redirecionando...");
             
             goToFeedPage();
         } else {
-            // 4. Define o erro (apesar da simulação estar sempre em sucesso)
             setErro(resultado.mensagem);
         }
         setLoading(false);
     }
 
     return (
-        <div>
-            <div>
-                <h1>Cadastre-se no Labeddit</h1>
+        <Container register>
+            <Card>
+                <Title register>Cadastre-se no Labeddit</Title>
 
                 {erro && (
-                    <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
-                        <span className="font-medium">Erro:</span> {erro}
-                    </div>
+                    <ErrorMessage register role="alert">
+                        <span>Erro:</span> {erro}
+                    </ErrorMessage>
                 )}
                 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <Form onSubmit={handleSubmit}>
 
-                    <input
+                    <Input
                         name="email"
                         type="email"
                         placeholder='Email'
                         onChange={onChange}
                         value={form.email}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150"
                         disabled={loading}
+                        register
                     />
-                    <input
+                    <Input
                         name="senha"
                         type="password"
                         placeholder='Senha'
                         onChange={onChange}
                         value={form.senha}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150"
                         disabled={loading}
+                        register
                     />
 
-                    <button 
-                        type="submit" 
+                    <Button
+                        type="submit"
                         disabled={loading}
-                        className={`w-full py-3 text-lg font-semibold rounded-lg shadow-md transition duration-300 ease-in-out 
-                            ${loading 
-                                ? 'bg-green-300 cursor-not-allowed flex items-center justify-center' 
-                                : 'bg-green-600 hover:bg-green-700 text-white hover:shadow-lg'}`}
+                        register
                     >
                         {loading ? (
                             <>
@@ -87,9 +85,9 @@ export const RegisterPage = () => {
                                 Cadastrando...
                             </>
                         ) : 'Cadastrar'}
-                    </button>
-                </form>
-            </div>
-        </div>
+                    </Button>
+                </Form>
+            </Card>
+        </Container>
     )
 }

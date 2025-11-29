@@ -1,62 +1,103 @@
 import { useParams } from "react-router-dom";
 import { useProtectedPage } from "../Hooks/useProtectedPage";
-import { useRequestData } from "../Hooks/useRequestData"; 
+import React, { useContext, useEffect } from "react"; 
+import GlobalStateContext from "../Global/GlobalStateContext";
+import { 
+    DetailsContainer, PostCardDetail, PostTitle, PostMeta, PostContentDetail, 
+    CommentsHeader, CommentList, CommentItem, CommentAuthor, CommentContent, 
+    StatusText, VoteContainer, VoteButton
+} from '../Styles/StyledComponents'; 
 
 export const PostDetails = () => {
-    const isVerified = useProtectedPage(); 
-    const { id } = useParams();
-    const { 
-        postDetails, 
-        comments, 
+    const isVerified = useProtectedPage();
+    const { id } = useParams();
+    
+    const {
+        postDetails,
+        comments,
         isLoadingDetails, 
-        errorDetails
-    } = useRequestData(id); 
+        errorDetails,     
+        fetchPostDetails,
+        handlePostVote,
+        handleCommentVote,
+        userPostVotes,
+        userCommentVotes
+    } = useContext(GlobalStateContext);
+
+    useEffect(() => {
+        fetchPostDetails(id);
+    }, [id, fetchPostDetails]); 
+
+    const onPostVote = (voteValue) => {
+        if(postDetails) {
+            handlePostVote(postDetails.id, voteValue);
+        }
+    };
 
     if (!isVerified) {
-        return <p style={{ padding: '20px' }}>Verificando autenticação...</p>;
+        return <StatusText>Verificando autenticação...</StatusText>;
     }
 
-    if (isLoadingDetails) {
-        return <p style={{ padding: '20px' }}>Carregando detalhes do post (ID: {id})...</p>;
-    }
+    if (isLoadingDetails) {
+        return <StatusText>Carregando detalhes do post (ID: {id})...</StatusText>;
+    }
 
-    if (errorDetails) {
-        return <p style={{ padding: '20px', color: 'red' }}>Erro: {errorDetails}</p>;
-    }
+    if (errorDetails) {
+        return <StatusText error>{`Erro: ${errorDetails}`}</StatusText>;
+    }
     
     if (!postDetails) {
-        return <p style={{ padding: '20px' }}>Nenhum post encontrado com o ID {id}.</p>;
+        return <StatusText>Nenhum post encontrado com o ID {id}.</StatusText>;
     }
+    
+    const postVote = userPostVotes[postDetails.id] || 0;
 
-    return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-            
-            <div style={{ border: '2px solid #007bff', padding: '20px', marginBottom: '30px' }}>
-                <h2>Detalhes do Post (ID: {postDetails.id})</h2>
-                
-                <h1>{postDetails.titulo}</h1>
-                <p>
-                    **Autor:** {postDetails.autor} | **Likes:** {postDetails.likes} | **Dislikes:** {postDetails.deslikes}
-                </p>
-                <hr/>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{postDetails.conteudo}</p>
-            </div>
+    return (
+        <DetailsContainer>
+            
+            <PostCardDetail>
+                <h2>Detalhes do Post (ID: {postDetails.id})</h2>
+                
+                <PostTitle>{postDetails.titulo}</PostTitle>
+                <PostMeta>
+                    Autor: <strong>{postDetails.autor}</strong>
+                </PostMeta>
+                <PostContentDetail>{postDetails.conteudo}</PostContentDetail>
+                
+                <VoteContainer detail>
+                    <VoteButton onClick={() => onPostVote(1)} like isVoted={postVote === 1}>
+                        👍 {postDetails.likes}
+                    </VoteButton>
+                    <VoteButton onClick={() => onPostVote(-1)} deslike isVoted={postVote === -1}>
+                        👎 {postDetails.deslikes}
+                    </VoteButton>
+                </VoteContainer>
+            </PostCardDetail>
 
-            <h3>Comentários ({comments.length})</h3>
-            {comments.length > 0 ? (
-                <ul style={{ listStyleType: 'none', padding: 0 }}>
-                    {comments.map((comment) => (
-                        <li key={comment.id} style={{ border: '1px solid #ddd', padding: '10px', margin: '10px 0' }}>
-                            <strong>{comment.autor}:</strong> {comment.conteudo}
-                            <div style={{ fontSize: '0.8em', marginTop: '5px' }}>
-                                👍 {comment.likes} | 👎 {comment.deslikes}
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>Ainda não há comentários para este post.</p>
-            )}
-        </div>
-    );
+            <CommentsHeader>Comentários ({comments.length})</CommentsHeader>
+            {comments.length > 0 ? (
+                <CommentList>
+                    {comments.map((comment) => {
+                        const commentVote = userCommentVotes[comment.id] || 0;
+                        return (
+                        <CommentItem key={comment.id}>
+                            <CommentAuthor>{comment.autor}:</CommentAuthor>
+                            <CommentContent>{comment.conteudo}</CommentContent>
+                            <VoteContainer comment>
+                                <VoteButton onClick={() => handleCommentVote(comment.id, 1)} like isVoted={commentVote === 1}>
+                                    👍 {comment.likes}
+                                </VoteButton>
+                                <VoteButton onClick={() => handleCommentVote(comment.id, -1)} deslike isVoted={commentVote === -1}>
+                                    👎 {comment.deslikes}
+                                </VoteButton>
+                            </VoteContainer>
+                        </CommentItem>
+                        )
+                    })}
+                </CommentList>
+            ) : (
+                <p>Ainda não há comentários para este post.</p>
+            )}
+        </DetailsContainer>
+    );
 }

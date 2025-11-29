@@ -1,12 +1,16 @@
 import { useForm } from "../Hooks/useForm"
-import { login } from "../Mocks/APIMockada" 
+import { login } from "../Mocks/APIMockada"
 import { useNavigate } from "react-router-dom"
 import React, { useState } from 'react';
+import { 
+    Container, Card, Title, Form, Input, Button, 
+    ErrorMessage, SecondaryButton, Credentials 
+} from '../Styles/StyledComponents';
 
 export const LoginPage = () => {
     const navigate = useNavigate();
     const [form, onChange] = useForm({nome: "", email: "", senha: "" })
-    const [erro, setErro] = useState(null); 
+    const [erro, setErro] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const goToFeedPage = () => {
@@ -19,7 +23,7 @@ export const LoginPage = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault()
-        setErro(null); 
+        setErro(null);
         setLoading(true);
         console.log("BODY de Login:", form)
         const resultado = await login(form);
@@ -35,43 +39,40 @@ export const LoginPage = () => {
         setLoading(false);
     }
 
- 
     return (
-        <div>
-            <div>
-                <h1>Labeddit Login</h1>
+        <Container login>
+            <Card>
+                <Title>Labeddit Login</Title>
 
                 {erro && (
-                    <div role="alert">
+                    <ErrorMessage role="alert">
                         <span>Erro:</span> {erro}
-                    </div>
+                    </ErrorMessage>
                 )}
                 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <input
+                <Form onSubmit={handleSubmit}>
+                    <Input
                         name="email"
                         type="email"
                         placeholder='Email/Usuário'
                         onChange={onChange}
                         value={form.email}
                         disabled={loading}
+                        required
                     />
-                    <input
+                    <Input
                         name="senha"
                         type="password"
                         placeholder='Senha'
                         onChange={onChange}
                         value={form.senha}
                         disabled={loading}
+                        required
                     />
 
-                    <button 
-                        type="submit" 
+                    <Button
+                        type="submit"
                         disabled={loading}
-                        className={`w-full py-3 text-lg font-semibold rounded-lg shadow-md transition duration-300 ease-in-out 
-                            ${loading 
-                                ? 'bg-blue-300 cursor-not-allowed flex items-center justify-center' 
-                                : 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-lg'}`}
                     >
                         {loading ? (
                             <>
@@ -82,23 +83,21 @@ export const LoginPage = () => {
                                 Entrando...
                             </>
                         ) : 'Entrar'}
-                    </button>
-                </form>
+                    </Button>
+                </Form>
 
-                <div>
-                    <button 
-                        onClick={goToRegisterPage}
-                        disabled={loading}
-                    >
-                        Ainda não tem conta? **Cadastre-se!**
-                    </button>
-                </div>
+                <SecondaryButton
+                    onClick={goToRegisterPage}
+                    disabled={loading}
+                >
+                    Ainda não tem conta? <strong>Cadastre-se!</strong>
+                </SecondaryButton>
                 
-                <p>
-                    <strong className="font-bold">Credenciais de Teste:</strong><br/>
+                <Credentials>
+                    <strong>Credenciais de Teste:</strong><br/>
                     Email: victorfodao667@gmoil.key | Senha: vitor3570
-                </p>
-            </div>
-        </div>
+                </Credentials>
+            </Card>
+        </Container>
     )
 }

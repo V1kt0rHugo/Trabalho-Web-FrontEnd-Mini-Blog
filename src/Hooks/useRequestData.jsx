@@ -1,88 +1,81 @@
-import { useState, useEffect } from 'react';
-import { getPosts, createPost, getPostDetails } from '../Mocks/APIMockada'; 
+import { useState, useCallback } from 'react';
+import { getPosts, createPost, getPostDetails, votePost, voteComment } from '../Mocks/APIMockada';
 
-export const useRequestData = (postId = null) => { 
-    const [posts, setPosts] = useState([]);
-    const [isLoadingFeed, setIsLoadingFeed] = useState(true); 
-    const [errorFeed, setErrorFeed] = useState(null); 
-    const [isPosting, setIsPosting] = useState(false); 
-    const [postDetails, setPostDetails] = useState(null);
-    const [comments, setComments] = useState([]);
-    const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-    const [errorDetails, setErrorDetails] = useState(null);
-    
-    useEffect(() => {
-        if (!postId) {
-            const fetchPosts = async () => {
-                setIsLoadingFeed(true);
-                setErrorFeed(null);
-                try {
-                    const response = await getPosts(); 
-                    setPosts(response.data);
-                } catch (err) {
-                    setErrorFeed("Não foi possível carregar o feed. Tente novamente.");
-                    setPosts([]);
-                } finally {
-                    setIsLoadingFeed(false);
-                }
-            };
-            fetchPosts();
-        
-        } else {
-             const fetchDetails = async () => {
-                setIsLoadingDetails(true);
-                setErrorDetails(null);
-                setPostDetails(null);
-                setComments([]);
+export const useRequestData = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [isPosting, setIsPosting] = useState(false);
 
-                try {
-                    const response = await getPostDetails(postId);
-                    setPostDetails(response.post);
-                    setComments(response.comments);
-                } catch (err) {
-                    setErrorDetails(err.mensagem || "Não foi possível carregar os detalhes do post.");
-                } finally {
-                    setIsLoadingDetails(false);
-                }
-            };
-            fetchDetails();
-        }
-
-        return () => {
-             setPostDetails(null);
-             setComments([]);
-             setErrorDetails(null);
-        };
-        
-    }, [postId]); 
-
-    const sendPost = async (titulo, conteudo) => {
-        setIsPosting(true);
-        const novoPost = {
-            id : Date.now(), 
-            userId: 999,
-            autor: "Por Você (Postado Agora)",
-            titulo: titulo,
-            conteudo : conteudo,
-            likes : 0,
-            deslikes : 0
-        };
-
+    const getPostsData = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
         try {
-            await createPost(novoPost);
-            setPosts((prevPosts) => [novoPost, ...prevPosts]); 
-            alert(`Sucesso: Post "${novoPost.titulo}" criado.`);
-            return true;
+            const response = await getPosts();
+            return { sucesso: true, data: response.data };
         } catch (err) {
-            alert("Erro ao publicar o post.");
+            setError("Falha ao carregar posts.");
+            return { sucesso: false, data: [] };
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const createPostData = useCallback(async (novoPost) => {
+        setIsPosting(true);
+        setError(null);
+        try {
+            const response = await createPost(novoPost);
+            return response.sucesso;
+        } catch (err) {
+            setError("Falha ao criar post.");
             return false;
         } finally {
             setIsPosting(false);
         }
-    };
+    }, []);
+
+    const getPostDetailsData = useCallback(async (postId) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const response = await getPostDetails(postId);
+            return { sucesso: true, post: response.post, comments: response.comments };
+        } catch (err) {
+            setError(err.mensagem || "Post não encontrado.");
+            return { sucesso: false, post: null, comments: [] };
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const votePostData = useCallback(async (postId, like) => {
+        try {
+            const response = await votePost(postId, like);
+            return response.sucesso;
+        } catch (err) {
+            console.error("Erro ao votar no post:", err);
+            return false;
+        }
+    }, []);
+
+    const voteCommentData = useCallback(async (commentId, like) => {
+        try {
+            const response = await voteComment(commentId, like);
+            return response.sucesso;
+        } catch (err) {
+            console.error("Erro ao votar no comentário:", err);
+            return false;
+        }
+    }, []);
     
-    return { 
-        posts, isLoadingFeed, errorFeed, sendPost, isPosting,
-        postDetails, comments, isLoadingDetails, errorDetails
+    return {
+        getPostsData, 
+        createPostData,
+        getPostDetailsData,
+        votePostData,
+        voteCommentData,
+        isLoading, 
+        error, 
+        isPosting
     };
 };
